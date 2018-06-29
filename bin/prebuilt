@@ -15,7 +15,8 @@ const chalk = require('chalk')
 const netrc = require('netrc')
 const request = require('request-promise')
 const static = require('node-static')
-const prebuilt = require('prebuilt-core')
+
+const build = require('../tasks/build')
 
 const readFile = path => new Promise(res => fs.readFile(path, 'utf8', (e, d) => res(d)))
 const writeFile = promisify(fs.writeFile.bind(fs))
@@ -30,17 +31,17 @@ const main = async () => {
       await init()
       break
     case 'build':
-      await prebuilt.build(PROJECT_PATH)
+      await build(PROJECT_PATH)
       break
     case 'develop':
-      await prebuilt.build(PROJECT_PATH)
+      await build(PROJECT_PATH)
       await new Promise(res => {
         // watch
         watch.watchTree(`${PROJECT_PATH}/data`, () => {
-          prebuilt.build(PROJECT_PATH)
+          build(PROJECT_PATH)
         })
         watch.watchTree(`${PROJECT_PATH}/input`, () => {
-          prebuilt.build(PROJECT_PATH)
+          build(PROJECT_PATH)
         })
         // serve
         var fileServer = new static.Server(`${PROJECT_PATH}/output`)
