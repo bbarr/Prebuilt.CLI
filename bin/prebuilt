@@ -4,19 +4,24 @@ const path = require('path')
 
 require('dotenv').config({ path: path.join(process.cwd(), '.env') })
 
-const http = require('http')
+process.env.ADMIN_DOMAIN = 'http://localhost:3000'
+
 const fs = require('fs')
 const readline = require('readline')
 const { promisify } = require('util')
 
 const AdmZip = require('adm-zip')
-const watch = require('watch')
 const chalk = require('chalk')
 const netrc = require('netrc')
 const request = require('request-promise')
-const static = require('node-static')
+const yaml = require('node-yaml')
 
 const build = require('../tasks/build')
+const develop = require('../tasks/develop')
+const deploy = require('../tasks/deploy')
+const loginTask = require('../tasks/login')
+
+const prebuilt = require('../../core/lib/prebuilt')
 
 const readFile = path => new Promise(res => fs.readFile(path, 'utf8', (e, d) => res(d)))
 const writeFile = promisify(fs.writeFile.bind(fs))
@@ -34,23 +39,7 @@ const main = async () => {
       await build(PROJECT_PATH)
       break
     case 'develop':
-      await build(PROJECT_PATH)
-      await new Promise(res => {
-        // watch
-        watch.watchTree(`${PROJECT_PATH}/data`, () => {
-          build(PROJECT_PATH)
-        })
-        watch.watchTree(`${PROJECT_PATH}/input`, () => {
-          build(PROJECT_PATH)
-        })
-        // serve
-        var fileServer = new static.Server(`${PROJECT_PATH}/output`)
-        http.createServer(function (request, response) {
-          request.addListener('end', function () {
-            fileServer.serve(request, response)
-          }).resume()
-        }).listen(arg1 || 5000)
-      })
+      await develop(PROJECT_PATH, build, getProjectConfig('development.port') || 5000)
       break
     case 'login':
       await login()
@@ -66,46 +55,41 @@ const main = async () => {
       console.log('Logged out.')
       break
     case 'deploy':
-
-      const zip = new AdmZip()
-
-      zip.addLocalFolder(`${PROJECT_PATH}/input`)
-      zip.addLocalFolder(`${PROJECT_PATH}/data`)
-      zip.addLocalFile(`${PROJECT_PATH}/config.yaml`)
-
-      const config = fs.readFileSync(`${PROJECT_PATH}/config.yaml`, 'utf8')
-
-      await request.post({
-        url: `${process.env.ADMIN_DOMAIN}/deploy?config=${encodeURIComponent(config)}&token=${netrc()['prebuilt.xyz'].token}`,
-        formData: { 
-          package: {
-            value: zip.toBuffer(),
-            options: {
-              filename: 'package.zip',
-              contentType: 'application/zip'
-            }
-          }
-        }
-      })
+      await deploy(PROJECT_PATH, getProjectConfig('name'))
       break
     case 'env':
-      if (arg2) {
-        // setting
-        const { data: env } = await request.put({ 
-          url: `${process.env.ADMIN_DOMAIN}/env?token=${netrc()['prebuilt.xyz'].token}`, 
-          data: {
-            [arg1]: arg2
-          }
-        })
-        console.log('yes!', env)
-      } else {
-        // getting
-        console.log('huh')
-        const { data: env } = await request.get({ 
-          url: `${process.env.ADMIN_DOMAIN}/env?token=${netrc()['prebuilt.xyz'].token}`
-        })
-        console.log('yeah', env)
-      }
+      const env = await request.get({ 
+        url: `${process.env.ADMIN_DOMAIN}/env?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`
+      })
+      const json = JSON.parse(env)
+      console.log('Env: ', Object.keys(json).reduce((memo, key) => {
+        return `${memo}
+${key}=${json[key]}`
+        }, ''))
+      break
+    case 'env:set':
+      const envSetJson = await request.put({ 
+        url: `${process.env.ADMIN_DOMAIN}/env?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`, 
+        json: {
+          [arg1]: arg2
+        }
+      })
+
+      console.log(`Set Env: `, Object.keys(envSetJson).reduce((memo, key) => {
+        return `${memo}
+${key}=${envSetJson[key]}`
+        }, ''))
+      break
+    case 'env:unset':
+      const unsetData = await request.del({ 
+        url: `${process.env.ADMIN_DOMAIN}/env/${arg1}?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`, 
+      })
+      const unsetJson = JSON.parse(unsetData)
+
+      console.log(`Unset Env: `, Object.keys(unsetJson).reduce((memo, key) => {
+        return `${memo}
+${key}=${unsetJson[key]}`
+        }, ''))
       break
     case 'undeploy':
 
@@ -116,9 +100,9 @@ const main = async () => {
       if (confirm !== 'CONFIRM')
         return console.log('Ok, whew, looks like you didn\'t mean to undeploy anything... Carry on')
 
-      const configForDeleting = fs.readFileSync(`${PROJECT_PATH}/config.yaml`, 'utf8')
-      await request.post({ 
-        url: `${process.env.ADMIN_DOMAIN}/undeploy?config=${encodeURIComponent(configForDeleting)}&token=${netrc()['prebuilt.xyz'].token}` 
+      const configForDeleting = getProjectConfig({ raw: true })
+      await request.post({
+        url: `${process.env.ADMIN_DOMAIN}/undeploy?name=${getProjectConfig('name')}&config=${encodeURIComponent(configForDeleting)}&token=${netrc()['prebuilt.xyz'].token}` 
       })
 
       console.log('Undeployed successfully.')
@@ -127,6 +111,22 @@ const main = async () => {
       help()
   }
 }
+
+const getProjectConfig = (() => {
+  const raw = fs.readFileSync(`${PROJECT_PATH}/${prebuilt.project.CONFIG_FILE}`, 'utf8')
+  const config = yaml.parse(raw)
+  return (keys='') => {
+    if (keys && keys.raw) return raw
+    if (!keys) return config
+    else {
+      return keys.split('.').reduce((memo, part) => {
+        if (!memo) return null
+        if (!memo[part]) return null
+        return memo[part]
+      }, config)
+    }
+  }
+})()
 
 // GO
 main().then(
@@ -146,12 +146,13 @@ Prebuilt - ${chalk.gray('Static-site generator for dynamic websites')}
   ${chalk.gray('Commands:')}
     init                 - Initialize new project in current directory
     build                - One-off build from ${prebuilt.project.INPUT_DIR}/ into ${prebuilt.project.OUTPUT_DIR}/
-    develop [port=5000]  - Start dev server, rebuilding on changes in ${prebuilt.project.DATA_DIR} or ${prebuilt.project.INPUT_DIR}
+    develop              - Start dev server, rebuilding on changes in ${prebuilt.project.DATA_DIR} or ${prebuilt.project.INPUT_DIR}
+
     deploy [env]         - (Re)uploads config, templates, user-defined data files to 
                            Prebuilt's syncing servers for auto-redeploying on data changes
-
     env                  - List all environment variables
-    env [key] [value]    - Set Environment variable
+    env:get [key]        - Get env key
+    env:set [key] [val]  - Set env key
     login                - Login with username, password
     logout               - Logout, removing the ability to deploy or sync remote data
     whoami               - Prints out the email address of the current login
@@ -214,7 +215,7 @@ Created:
 async function login() {
   const { email } = await askQuestions({ email: 'Email: ' })
   console.log('Sending you a magic link in an email. Click it and be authenticated, friend...')
-  const token = await prebuilt.auth.login(email)
+  const token = await loginTask(email)
   console.log(`Nice work! You are now logged in as ${email}`)
   const existing = netrc() || {}
   existing['prebuilt.xyz'] = { email, token }

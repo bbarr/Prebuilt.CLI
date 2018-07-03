@@ -14,8 +14,10 @@
     "dotenv": "^6.0.0",
     "netrc": "^0.1.4",
     "node-static": "^0.7.10",
+    "node-yaml": "^3.1.1",
     "recursive-readdir": "^2.2.2",
     "request-promise": "^4.2.2",
+    "uuid": "^3.3.2",
     "watch": "^1.0.2"
   }
 }
