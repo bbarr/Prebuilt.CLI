@@ -65,8 +65,12 @@ const createFile = async (filePath) => {
 
 module.exports = async (projectPath) => {
 
+  console.log('building ', projectPath)
   LazyData.prototype.path = projectPath 
   const data = new LazyData
+
+  // clear output for now
+  await exec(`rm -rf ${projectPath}/output/*`)
 
   const allFilePaths = await recursive(`${projectPath}/input`)
   const filePaths = core.project.onlyRenderable(allFilePaths)
@@ -90,5 +94,4 @@ module.exports = async (projectPath) => {
       return writeFile(`${projectPath}/output/${filePath}`, content)
     })
   )
-
 }
