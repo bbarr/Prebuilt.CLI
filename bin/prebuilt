@@ -2,9 +2,7 @@
 
 const path = require('path')
 
-require('dotenv').config({ path: path.join(process.cwd(), '.env') })
-
-process.env.ADMIN_DOMAIN = 'http://localhost:3000'
+require('dotenv').config()
 
 const fs = require('fs')
 const readline = require('readline')
@@ -113,9 +111,9 @@ ${key}=${unsetJson[key]}`
 }
 
 const getProjectConfig = (() => {
-  const raw = fs.readFileSync(`${PROJECT_PATH}/${prebuilt.project.CONFIG_FILE}`, 'utf8')
-  const config = yaml.parse(raw)
   return (keys='') => {
+    const raw = fs.readFileSync(`${PROJECT_PATH}/${prebuilt.project.CONFIG_FILE}`, 'utf8')
+    const config = yaml.parse(raw)
     if (keys && keys.raw) return raw
     if (!keys) return config
     else {
@@ -153,7 +151,8 @@ Prebuilt - ${chalk.gray('Static-site generator for dynamic websites')}
     env                  - List all environment variables
     env:get [key]        - Get env key
     env:set [key] [val]  - Set env key
-    login                - Login with username, password
+    env:unset [key]      - Unset env key
+    login                - Login with a magic link sent to your email
     logout               - Logout, removing the ability to deploy or sync remote data
     whoami               - Prints out the email address of the current login
     update-billing       - Securely updates billing info for logged in account
