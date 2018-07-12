@@ -4,6 +4,8 @@ const request = require('request-promise')
 const AdmZip = require('adm-zip')
 const fs = require('fs')
 
+const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://admin.prebuilt.xyz'
+
 module.exports = async (PROJECT_PATH, name) => {
   const zip = new AdmZip()
 
@@ -12,7 +14,7 @@ module.exports = async (PROJECT_PATH, name) => {
   zip.addLocalFile(`${PROJECT_PATH}/config.yaml`)
 
   await request.post({
-    url: `${process.env.ADMIN_DOMAIN}/deploy?token=${netrc()['prebuilt.xyz'].token}`,
+    url: `${ADMIN_DOMAIN}/deploy?token=${netrc()['prebuilt.xyz'].token}`,
     formData: {
       package: {
         value: zip.toBuffer(),

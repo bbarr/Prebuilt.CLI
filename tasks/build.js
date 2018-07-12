@@ -21,7 +21,7 @@ const writeFile = async (filePath, content) => {
 const readdir = promisify(fs.readdir.bind(fs))
 const stat = promisify(fs.stat.bind(fs))
 
-const core = require('../../core/lib/prebuilt')
+const core = require('prebuilt-core')
 
 class LazyData extends core.Drop {
 
@@ -52,6 +52,7 @@ class LazyData extends core.Drop {
 
     return '[missing]'
   }
+
 }
 
 const createFile = async (filePath) => {
