@@ -6,8 +6,12 @@ __*These docs (and the project in general) are very much a work-in-progress.*__
 `yarn global add prebuilt-cli`
 
 ## Get Started
-`mkdir my-project && cd my-project`
-`prebuilt init` (scaffolds a new project in the current directory)
+```
+mkdir my-project
+cd my-project
+prebuilt init
+```
+
 
 ## Commands
 
