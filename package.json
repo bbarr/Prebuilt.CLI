@@ -1,6 +1,6 @@
 {
   "name": "prebuilt-cli",
-  "version": "1.0.3",
+  "version": "1.0.52",
   "main": "index.js",
   "repository": "git@github.com:bbarr/Prebuilt.CLI.git",
   "author": "Brendan Barr <bbarr1384@gmail.com>",
