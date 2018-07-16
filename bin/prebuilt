@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://admin.prebuilt.xyz'
-console.log(ADMIN_DOMAIN)
 
 const path = require('path')
 
@@ -29,6 +28,29 @@ const readdir = promisify(fs.readdir.bind(fs))
 const [ _1, _2, cmd, arg1, arg2 ] = process.argv
 const PROJECT_PATH = process.cwd()
 
+const outputPromise = (prom) => {
+  return prom.then(
+    resp => console.log(resp),
+    resp => console.log(resp.error)
+  )
+}
+
+const get = (config) => {
+  return outputPromise(request.get(config))
+}
+
+const post = (config) => {
+  return outputPromise(request.post(config))
+}
+
+const put = (config) => {
+  return outputPromise(request.put(config))
+}
+
+const del = (config) => {
+  return outputPromise(request.del(config))
+}
+
 const main = async () => {
   switch (cmd) {
     case 'init':
@@ -54,21 +76,23 @@ const main = async () => {
       console.log('Logged out.')
       break
     case 'deploy':
-      await deploy(PROJECT_PATH, getProjectConfig('name'))
+      await outputPromise(deploy(PROJECT_PATH, getProjectConfig('name')))
       break
     case 'pull-data':
-      const data = await request.get({
+      const data = await get({
         url: `${ADMIN_DOMAIN}/data?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`
       })
+      if (!data) return
       const dataJson = JSON.parse(data)
       Object.entries(dataJson).forEach(([ file, data ]) => {
         fs.writeFileSync(`${PROJECT_PATH}/${prebuilt.project.DATA_DIR}/${file}`, JSON.stringify(data))
       })
       break
     case 'env':
-      const env = await request.get({ 
+      const env = await get({ 
         url: `${ADMIN_DOMAIN}/env?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`
       })
+      if (!env) return
       const json = JSON.parse(env)
       console.log('Env: ', Object.keys(json).reduce((memo, key) => {
         return `${memo}
@@ -76,7 +100,7 @@ ${key}=${json[key]}`
         }, ''))
       break
     case 'env:set':
-      const envSetJson = await request.put({ 
+      const envSetJson = await put({ 
         url: `${ADMIN_DOMAIN}/env?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`, 
         json: {
           [arg1]: arg2
@@ -89,7 +113,7 @@ ${key}=${envSetJson[key]}`
         }, ''))
       break
     case 'env:unset':
-      const unsetData = await request.del({ 
+      const unsetData = await del({ 
         url: `${ADMIN_DOMAIN}/env/${arg1}?name=${getProjectConfig('name')}&token=${netrc()['prebuilt.xyz'].token}`, 
       })
       const unsetJson = JSON.parse(unsetData)
@@ -109,7 +133,7 @@ ${key}=${unsetJson[key]}`
         return console.log('Ok, whew, looks like you didn\'t mean to undeploy anything... Carry on')
 
       const configForDeleting = getProjectConfig({ raw: true })
-      await request.post({
+      await post({
         url: `${ADMIN_DOMAIN}/undeploy?name=${getProjectConfig('name')}&config=${encodeURIComponent(configForDeleting)}&token=${netrc()['prebuilt.xyz'].token}` 
       })
 

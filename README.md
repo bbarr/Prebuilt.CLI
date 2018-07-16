@@ -167,3 +167,22 @@ Running `prebuilt build` will generate:
 ```
 <h1>product 2</h1>
 ```
+
+### Deploying to Netlify using Moltin data
+
+Using this config:
+
+```
+name: example
+
+data:
+  moltin: 
+    client_id: "some client id"
+    client_secret: "some client secret"
+
+deploy:
+  netlify: 
+    access_token: "some access token"
+    site_id: "some site id"
+```
+

@@ -13,7 +13,7 @@ module.exports = async (PROJECT_PATH, name) => {
   zip.addLocalFolder(`${PROJECT_PATH}/data`, 'data')
   zip.addLocalFile(`${PROJECT_PATH}/config.yaml`)
 
-  await request.post({
+  return request.post({
     url: `${ADMIN_DOMAIN}/deploy?token=${netrc()['prebuilt.xyz'].token}`,
     formData: {
       package: {
