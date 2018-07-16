@@ -28,10 +28,10 @@ deploy:
     access_token: my-access-token
 ```
 
-`prebuilt init` created some scaffolding templates. Let's ignore those (or remove them) and add some new ones now to make better use of our Moltin data.
+`prebuilt init` created some scaffolding templates in `input/`. Let's ignore those (or remove them) and add some new ones now to make better use of our Moltin data.
 
 ### Some template files to display our Moltin products
-`_layout.html`
+`input/_layout.html`
 (_The underscore-prefix tells the generator to skip this file for rendering._)
 ```
 <!DOCTYPE html>
@@ -44,7 +44,7 @@ deploy:
 </html>
 ```
 
-`index.html`
+`input/index.html`
 ```
 ---
 layout: _layout.html
@@ -54,7 +54,7 @@ layout: _layout.html
 {% endfor %}
 ```
 
-`product.html`
+`input/product.html`
 ```
 ---
 {% for product in data.products %}
