@@ -13,7 +13,9 @@ $ mkdir my-project && cd my-project && prebuilt init
 ```
 
 Configure your project with credentials for both Moltin and Netlify:
+
 _config.yaml_
+
 ```
 name: my project
 data:
