@@ -33,7 +33,7 @@ Run:
 $ prebuilt deploy
 ```
 to push config and current templates (at this point just some scaffolded files in input/) up to the Prebuilt server, where it will sync up with Moltin and deploy to Netlify whenever Moltin
-data changes, or, new templates get pushed up with `$ prebuilt deploy`.
+data changes, or, when new templates get pushed up with `$ prebuilt deploy`.
 
 Run:
 ```
@@ -41,7 +41,7 @@ $ prebuilt pull-data
 ```
 and you will see the current data from Moltin available as JSON files in `data/`
 
-Now, let's add ssome new templates to make better use of our Moltin data.
+Now, let's add some new templates to make better use of our Moltin data.
 
 ### Some template files to display our Moltin products
 `input/_layout.html`
@@ -96,7 +96,7 @@ $ prebuilt develop
 ```
 and head to localhost:5000
 
-Already, though, your site should be live, and syncing whenever Moltin data changes. Want to redeploy your template files? Just run `$ prebuilt deploy` again.
+Already, your site should be live, and syncing whenever Moltin data changes. Want to redeploy your fancy new template files? Just run `$ prebuilt deploy` again.
 
 Speaking of commands, here is the full list, along with basic descriptions:
 
