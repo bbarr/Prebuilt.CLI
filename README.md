@@ -28,7 +28,20 @@ deploy:
     access_token: my-access-token
 ```
 
-`prebuilt init` created some scaffolding templates in `input/`. Let's ignore those (or remove them) and add some new ones now to make better use of our Moltin data.
+Run:
+```
+$ prebuilt deploy
+```
+to push config and current templates (at this point just some scaffolded files in input/) up to the Prebuilt server, where it will sync up with Moltin and deploy to Netlify whenever Moltin
+data changes, or, new templates get pushed up with `$ prebuilt deploy`.
+
+Run:
+```
+$ prebuilt pull-data
+```
+and you will see the current data from Moltin available as JSON files in `data/`
+
+Now, let's add ssome new templates to make better use of our Moltin data.
 
 ### Some template files to display our Moltin products
 `input/_layout.html`
@@ -70,18 +83,6 @@ layout: _layout.html
 ```
 
 Now run:
-```
-$ prebuilt deploy
-```
-to publish the templates and initialize the sync with Moltin's API/Webhooks. 
-
-Then run:
-```
-$ prebuilt pull-data
-```
-to pull down the current data from Moltin, in the form of JSON files in `data/`. This is useful for developing locally.
-
-Then run:
 ```
 $ prebuilt build
 ```
