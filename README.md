@@ -5,13 +5,97 @@ __*These docs (and the project in general) are very much a work-in-progress.*__
 ## Installation
 `yarn global add prebuilt-cli`
 
-## Get Started
+## Getting Started (with Moltin data, hosted on Netlify)
+
+Create project directory and initialize site inside it:
 ```
-mkdir my-project
-cd my-project
-prebuilt init
+$ mkdir my-project && cd my-project && prebuilt init
 ```
 
+Configure your project with credentials for both Moltin and Netlify:
+_config.yaml_
+```
+name: my project
+data:
+  moltin:
+    client_key: my-client-key
+    client_secret: my-client-secret
+deploy:
+  netlify:
+    site_id: my-site-id
+    access_token: my-access-token
+```
+
+`prebuilt init` created some scaffolding templates. Let's ignore those (or remove them) and add some new ones now to make better use of our Moltin data.
+
+### Some template files to display our Moltin products
+`_layout.html`
+(_The underscore-prefix tells the generator to skip this file for rendering._)
+```
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    {{ content }}
+  </body>
+</html>
+```
+
+`index.html`
+```
+---
+layout: _layout.html
+---
+{% for product in data.products %}
+<p><a href="/products/{{product.id}}.html">{{ product.name }}</a></p>
+{% endfor %}
+```
+
+`product.html`
+```
+---
+{% for product in data.products %}
+-
+  output: products/{{ product.id }}.html
+  title: product.name
+  layout: _layout.html
+{% endfor %}
+---
+
+{{ product.name }}
+
+```
+
+Now run:
+```
+$ prebuilt deploy
+```
+to publish the templates and initialize the sync with Moltin's API/Webhooks. 
+
+Then run:
+```
+$ prebuilt pull-data
+```
+to pull down the current data from Moltin, in the form of JSON files in `data/`. This is useful for developing locally.
+
+Then run:
+```
+$ prebuilt build
+```
+And voila!, the `input/` files are rendered into `output/`.
+
+Want to keep developing locally and have your template files auto-built as they change?
+
+Run:
+```
+$ prebuilt develop
+```
+and head to localhost:5000
+
+Already, though, your site should be live, and syncing whenever Moltin data changes. Want to redeploy your template files? Just run `$ prebuilt deploy` again.
+
+Speaking of commands, here is the full list, along with basic descriptions:
 
 ## Commands
 
@@ -56,15 +140,7 @@ Logout, removing the ability to deploy or sync remote data
 >__prebuilt whoami__               
 Prints out the email address of the current login
 
-## The General Idea
-Prebuilt has two parts to it.
-
-1. A very simple static site generator that uses Markdown for frontmatter and Liquid everywhere to make website creation infinitely flexible.
-
-2. A syncing server that takes care of auto-deploying and syncing to external data sources.
-
-Let's start with...
-### The static site generator
+### Director structure and static-site generator
 
 There are 3 top level directories that matter:
 
@@ -166,23 +242,5 @@ Running `prebuilt build` will generate:
 `output/shop/product-2.html`:
 ```
 <h1>product 2</h1>
-```
-
-### Deploying to Netlify using Moltin data
-
-Using this config:
-
-```
-name: example
-
-data:
-  moltin: 
-    client_id: "some client id"
-    client_secret: "some client secret"
-
-deploy:
-  netlify: 
-    access_token: "some access token"
-    site_id: "some site id"
 ```
 
