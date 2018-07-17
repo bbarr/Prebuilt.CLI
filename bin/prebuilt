@@ -30,8 +30,8 @@ const PROJECT_PATH = process.cwd()
 
 const outputPromise = (prom) => {
   return prom.then(
-    resp => console.log(resp),
-    resp => console.log(resp.error)
+    resp => { console.log(resp); return resp },
+    resp => { console.log(resp.error); return resp }
   )
 }
 
