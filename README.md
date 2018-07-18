@@ -39,7 +39,7 @@ Run:
 ```
 $ prebuilt pull-data
 ```
-and you will see the current data from Moltin available as JSON files in `data/`
+and you will see the current data from Moltin available as JSON files in `data/`. This is useful for developing locally, as we will see down below.
 
 Now, let's add some new templates to make better use of our Moltin data.
 
