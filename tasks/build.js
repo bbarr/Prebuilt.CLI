@@ -90,7 +90,7 @@ module.exports = async (projectPath) => {
 
   await Promise.all(
     R.unnest(outputChains).map(([ meta, content, file ]) => {
-      const filePath = meta.output || file.file
+      const filePath = meta.output || (file.file.replace('.liquid', '.html'))
       return writeFile(`${projectPath}/output/${filePath}`, content)
     })
   )
