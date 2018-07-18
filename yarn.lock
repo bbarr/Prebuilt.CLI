@@ -230,9 +230,9 @@ pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
 
-prebuilt-core@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/prebuilt-core/-/prebuilt-core-1.0.0.tgz#8b5ecddf6f430c81983464383eadd5f78a22fdfe"
+prebuilt-core@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/prebuilt-core/-/prebuilt-core-1.0.1.tgz#be36cb458bb95d7a6d392ca69d1a27f1a64beff6"
   dependencies:
     liquid-node "^3.0.0"
     netlify "^1.2.0"

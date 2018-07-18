@@ -60,13 +60,12 @@ const createFile = async (filePath) => {
   return {
     raw,
     path: path.dirname(filePath),
-    file: filePath.split(path.sep).pop()
+    file: filePath.split(path.sep + 'input' + path.sep).pop()
   }
 }
 
 module.exports = async (projectPath) => {
 
-  console.log('building ', projectPath)
   LazyData.prototype.path = projectPath 
   const data = new LazyData
 
