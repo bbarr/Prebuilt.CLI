@@ -30,6 +30,12 @@ deploy:
 
 Run:
 ```
+$ prebuilt login
+```
+and follow the instructions until you are logged in. Basically, you will just be emailed a magic auth link which should feel similar to Slack's experience.
+
+Run:
+```
 $ prebuilt deploy
 ```
 to push config and current templates (at this point just some scaffolded files in input/) up to the Prebuilt server, where it will sync up with Moltin and deploy to Netlify whenever Moltin
