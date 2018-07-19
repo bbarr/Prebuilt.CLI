@@ -41,12 +41,6 @@ $ prebuilt deploy
 to push config and current templates (at this point just some scaffolded files in input/) up to the Prebuilt server, where it will sync up with Moltin and deploy to Netlify whenever Moltin
 data changes, or, when new templates get pushed up with `$ prebuilt deploy`.
 
-Run:
-```
-$ prebuilt pull-data
-```
-and you will see the current data from Moltin available as JSON files in `data/`. This is useful for developing locally, as we will see down below.
-
 Now, let's add some new templates to make better use of our Moltin data.
 
 ### Some template files to display our Moltin products
@@ -93,6 +87,14 @@ Now run:
 $ prebuilt build
 ```
 And voila!, the `input/` files are rendered into `output/`.
+
+Well, not quite. You synced up data and templates on the server, but not locally! If you look in your `data/` directory, it will just have our example data.
+
+Let's change that by running:
+```
+$ prebuilt pull-data
+```
+and you will see the current data from Moltin available as JSON files in `data/`. This is useful for developing locally, and can be done whenever you want to pull down a fresh set of any remote data configured in `config.yaml`.
 
 Want to keep developing locally and have your template files auto-built as they change?
 
