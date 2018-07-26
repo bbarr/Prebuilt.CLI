@@ -2,7 +2,7 @@
 const uuid = require('uuid/v1')
 const request = require('request-promise')
 
-const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://admin.prebuilt.xyz'
+const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://admin.prebuilt.xyz'
 
 module.exports = async (email) => {
 

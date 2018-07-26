@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://admin.prebuilt.xyz'
+const ADMIN_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://admin.prebuilt.xyz'
 
 const path = require('path')
 
@@ -76,7 +76,11 @@ const main = async () => {
       console.log('Logged out.')
       break
     case 'deploy':
-      await outputPromise(deploy(PROJECT_PATH, getProjectConfig('name')))
+      try {
+        await outputPromise(deploy(PROJECT_PATH, getProjectConfig('name')))
+      } catch(e) {
+        console.log('Uh-oh, something went wrong deploying: ', e)
+      }
       break
     case 'pull-data':
       const data = await get({
