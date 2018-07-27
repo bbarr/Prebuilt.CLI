@@ -20,7 +20,7 @@ _config.yaml_
 name: my project
 data:
   moltin:
-    client_key: my-client-key
+    client_id: my-client-key
     client_secret: my-client-secret
 deploy:
   netlify:
